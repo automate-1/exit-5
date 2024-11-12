@@ -1,0 +1,12 @@
+[submodule "exit-4"]
+	path = exit-4
+	url = https://github.com/automate-1/exit-4.git
+[submodule "exit-3"]
+	path = exit-3
+	url = https://github.com/automate-1/exit-3.git
+[submodule "exit-2"]
+	path = exit-2
+	url = https://github.com/automate-1/exit-2.git
+[submodule "exit-1"]
+	path = exit-1
+	url = https://github.com/automate-1/exit-1.git
