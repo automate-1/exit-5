@@ -12,7 +12,7 @@ jobs:
           REPO_TOKEN: ${{ secrets.GITT_TOKEN }}
         run: |
           curl -X POST -H "Accept: application/vnd.github.everest-preview+json" \
-          -H "Authorization: token $REPO_TOKEN" /dispatches \
+          -H "Authorization: token $REPO_TOKEN" \
           https://api.github.com/repos/cazelabs/ci-cd-github/dispatches \
           -d '{
                 "event_type": "submodule_action",
@@ -24,4 +24,3 @@ jobs:
                   "submodulePath": "exit-3"
                 }
               }'
-
