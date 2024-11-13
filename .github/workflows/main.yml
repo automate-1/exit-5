@@ -1,14 +1,11 @@
 
 name: Manage Submodules
+
 on:
   workflow_dispatch:
-  push:
-    branches:
-      - main
-
     inputs:
       repoPath:
-        description: 'https://github.com/automate-1/exit-5.git'
+        description: 'Path to the repository'
         required: true
         default: '.'
       submoduleUrl:
@@ -16,17 +13,21 @@ on:
         required: false
         default: ''
       action:
-        description: '5'
+        description: 'Action to perform (1-6)'
         required: true
         default: '5'
       submodulePath:
-        description: ' https://github.com/automate-1/exit-3.git(required for specific actions)'
+        description: 'Path to the submodule (required for specific actions)'
         required: false
         default: ''
       commitHash:
-        description: '0e6de18 (for update to a specific commit)'
+        description: 'Commit hash to update submodule to (for action 2)'
         required: false
         default: ''
+
+  push:
+    branches:
+      - main
 
 jobs:
   manage-submodules:
@@ -36,7 +37,14 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v3
         with:
+          token: ${{ secrets.GITHUB_TOKEN }}
           submodules: true  # Fetch submodules if they exist
+          persist-credentials: true  # Ensure credentials are retained for pushing changes
+
+      - name: Configure Git
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
 
       - name: Manage submodules
         shell: pwsh
@@ -54,9 +62,9 @@ jobs:
 
           # Add submodule if URL is provided
           if ($submoduleUrl -ne "") {
-              git submodule add $submoduleUrl
+              git submodule add $submoduleUrl $submodulePath
               git submodule update --init --recursive
-              git add .
+              git add .gitmodules $submodulePath
               git commit -m "Added submodule: $submoduleUrl"
               git push origin main
               Write-Output "Added submodule at $submoduleUrl"
@@ -70,10 +78,10 @@ jobs:
               }
               "2" {
                   if ($commitHash -ne "") {
-                      cd $submodulePath
+                      Set-Location -Path $submodulePath
                       git fetch
                       git checkout $commitHash
-                      cd ..
+                      Set-Location -Path $repoPath
                       Write-Output "$submodulePath submodule updated to specific commit $commitHash."
                   }
                   else {
@@ -92,11 +100,25 @@ jobs:
                   Write-Output "$submodulePath submodule URL has been synced."
               }
               "5" {
-                  git submodule deinit $submodulePath
-                  git rm -r --cached $submodulePath
+                  # Deinitialize and remove submodule
+                  git submodule deinit -f -- $submodulePath
+                  Write-Output "Deinitialized $submodulePath submodule."
+
+                  # Force remove the submodule from the index
+                  git rm -f --cached $submodulePath
+                  Write-Output "Removed $submodulePath from the index."
+
+                  # Delete the submodule directory from the working tree
+                  Remove-Item -Recurse -Force $submodulePath
+
+                  # Remove submodule reference from .gitmodules if present
+                  (Get-Content .gitmodules) -replace "(?ms)^\[submodule \"$submodulePath\"\].+?(?=\n\[|$)" | Set-Content .gitmodules
+                  git add .gitmodules
+
+                  # Commit the removal and push changes
                   git commit -m "Removed submodule at $submodulePath"
                   git push origin main
-                  Write-Output "$submodulePath submodule has been removed."
+                  Write-Output "$submodulePath submodule has been fully removed."
               }
               "6" {
                   git submodule add $submoduleUrl $submodulePath
