@@ -93,7 +93,7 @@ jobs:
               }
               "5" {
                   # Remove submodule and update .gitmodules in a single commit
-                  git submodule deinit $submodulePath
+                  git submodule deinit -f -- $submodulePath
                   git rm -r --cached $submodulePath
                   git config -f .gitmodules --remove-section submodule.$submodulePath
                   git add .gitmodules
