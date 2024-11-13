@@ -9,23 +9,23 @@ on:
       repoPath:
         description: 'Path to the repository'
         required: true
-        default: '.'
+        default: 'https://github.com/automate-1/exit-5.git'
       submoduleUrl:
         description: 'URL of the submodule to add'
         required: false
-        default: ''
+        default: 'https://github.com/automate-1/exit-3.git'
       submoduleCommit:
         description: 'Commit hash for the submodule (required to checkout specific version)'
         required: false
-        default: ''
+        default: '0e6de18'
       action:
         description: 'Choose an action from 1 to 6'
         required: true
-        default: '1'
+        default: '2'
       submodulePath:
         description: 'Path of the submodule for action (required for specific actions)'
         required: false
-        default: ''
+        default: 'exit-3'
 
 jobs:
   manage-submodules:
