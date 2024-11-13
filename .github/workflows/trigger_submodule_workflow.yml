@@ -9,7 +9,7 @@ jobs:
     steps:
       - name: Trigger the "Manage Submodules" workflow in the original repository
         env:
-          REPO_TOKEN: ${{ secrets.GIT_TOKEN }}
+          REPO_TOKEN: ${{ secrets.GITT_TOKEN }}
         run: |
           curl -X POST -H "Accept: application/vnd.github.everest-preview+json" \
           -H "Authorization: token $REPO_TOKEN" /dispatches \
