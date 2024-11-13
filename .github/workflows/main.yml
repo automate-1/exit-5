@@ -35,7 +35,7 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v3
         with:
-          token: ${{ secrets.SUBMODULE_PAT }}
+          token: ${{ secrets.GITHUB_TOKEN }}
           submodules: true  # Fetch submodules if they exist
 
       - name: Manage submodules
