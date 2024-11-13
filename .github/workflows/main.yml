@@ -14,7 +14,7 @@ on:
       action:
         description: 'Action to perform (1-6)'
         required: true
-        default: '5'  # Default to the removal action
+        default: '2'  
       submodulePath:
         description: 'Path to the submodule (required for specific actions)'
         required: false
