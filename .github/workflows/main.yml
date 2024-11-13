@@ -1,4 +1,3 @@
-
 name: Manage Submodules
 
 on:
@@ -15,15 +14,15 @@ on:
       action:
         description: 'Action to perform (1-6)'
         required: true
-        default: '5'
+        default: '5'  # Default to the removal action
       submodulePath:
         description: 'Path to the submodule (required for specific actions)'
         required: false
-        default: 'exit-3'
+        default: 'exit-3'  # The submodule path
       commitHash:
         description: 'Commit hash to update submodule to (for action 2)'
         required: false
-        default: '0e6de18'
+        default: '0e6de18'  # Specific commit for action 2, if needed
 
   push:
     branches:
@@ -60,8 +59,8 @@ jobs:
           Set-Location -Path $repoPath
           Write-Output "Changed directory to $repoPath"
 
-          # Add submodule if URL is provided
-          if ($submoduleUrl -ne "") {
+          # Add submodule if URL is provided and action is to add
+          if ($submoduleUrl -ne "" -and $action -eq "6") {
               git submodule add $submoduleUrl $submodulePath
               git submodule update --init --recursive
               git add .gitmodules $submodulePath
@@ -111,7 +110,15 @@ jobs:
                   # Delete the submodule directory from the working tree
                   Remove-Item -Recurse -Force $submodulePath
 
-                
+                  # Ensure .gitmodules is updated by removing the submodule entry
+                  $gitmodulesPath = ".gitmodules"
+                  $gitmodulesContent = Get-Content $gitmodulesPath
+                  $updatedContent = $gitmodulesContent | Where-Object { $_ -notmatch "^\[submodule \"$submodulePath\"\]" }
+                  $updatedContent | Set-Content $gitmodulesPath
+
+                  # Stage .gitmodules for commit
+                  git add .gitmodules
+                  Write-Output "Updated .gitmodules to remove the submodule entry."
 
                   # Commit the removal and push changes
                   git commit -m "Removed submodule at $submodulePath"
