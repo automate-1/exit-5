@@ -8,7 +8,7 @@ on:
 
     inputs:
       repoPath:
-        description: 'https://github.com/automate-1/exit-2.git'
+        description: 'https://github.com/automate-1/exit-5.git'
         required: true
         default: '.'
       submoduleUrl:
@@ -16,7 +16,7 @@ on:
         required: false
         default: ''
       action:
-        description: 'Choose an action from 1 to 6'
+        description: '2'
         required: true
         default: '1'
       submodulePath:
@@ -24,7 +24,7 @@ on:
         required: false
         default: ''
       commitHash:
-        description: 'Specific commit hash for the submodule (for update to a specific commit)'
+        description: '4aa8f7e (for update to a specific commit)'
         required: false
         default: ''
 
