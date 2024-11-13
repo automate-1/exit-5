@@ -17,10 +17,10 @@ jobs:
           -d '{
                 "event_type": "submodule_action",
                 "client_payload": {
-                  "repoPath": "/path/to/repo",
-                  "submoduleUrl": "https://github.com/example/submodule",
-                  "submoduleCommit": "commit_hash",
-                  "action": "1",
-                  "submodulePath": "path/to/submodule"
+                  "repoPath": "https://github.com/automate-1/exit-3.git",
+                  "submoduleUrl": "https://github.com/automate-1/exit-3.git",
+                  "submoduleCommit": "0e6de18",
+                  "action": "2",
+                  "submodulePath": "exit-3"
                 }
               }'
