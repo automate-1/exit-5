@@ -14,7 +14,7 @@ on:
       action:
         description: 'Action to perform (1-6)'
         required: true
-        default: '5'  
+        default: '2'  
       submodulePath:
         description: 'Path to the submodule (required for specific actions)'
         required: false
@@ -51,17 +51,21 @@ jobs:
           # Set variables from workflow inputs
           $repoPath = "${{ github.event.inputs.repoPath }}"
           $submoduleUrl = "${{ github.event.inputs.submoduleUrl }}"
-          $action = [int]${{ github.event.inputs.action }}  # Cast to integer
+          $action = "${{ github.event.inputs.action }}"  # Keep as string first for debugging
           $submodulePath = "${{ github.event.inputs.submodulePath }}"
           $commitHash = "${{ github.event.inputs.commitHash }}"
 
-           Write-Output "Action selected: $action"
+          Write-Output "Action selected: $action"
+
+          # Convert action to integer
+          $action = [int]$action
+          Write-Output "Action converted to integer: $action"
 
           # Navigate to the target repository
           Set-Location -Path $repoPath
           Write-Output "Changed directory to $repoPath"
 
-          # Add submodule if URL is provided and action is to add
+          # Add submodule if URL is provided and action is to add (action 6)
           if ($submoduleUrl -ne "" -and $action -eq 6) {
               git submodule add $submoduleUrl $submodulePath
               git submodule update --init --recursive
