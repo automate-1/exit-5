@@ -61,6 +61,20 @@ jobs:
           $action = [int]$action
           Write-Output "Action converted to integer: $action"
 
+           if ([string]::IsNullOrWhiteSpace($action)) {
+              Write-Output "ERROR: 'action' input is empty or null."
+              exit 1
+          }
+
+          # Convert action to integer
+          try {
+              $action = [int]$action
+          } catch {
+              Write-Output "ERROR: Failed to convert action to integer."
+              exit 1
+          }
+
+
           # Navigate to the target repository
           Set-Location -Path $repoPath
           Write-Output "Changed directory to $repoPath"
