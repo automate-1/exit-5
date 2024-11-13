@@ -1,1 +1,35 @@
+name: Sync Submodule Version
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  sync-submodule:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout the repository
+        uses: actions/checkout@v3
+        with:
+          submodules: 'true'  # Checkout the submodule
+
+      - name: Set up SSH
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          ssh-keyscan github.com >> ~/.ssh/known_hosts
+
+      - name: Checkout and update submodule
+        run: |
+          # Go to the submodule directory and checkout the specific version (branch/tag)
+          cd submodules/my-submodule
+          git checkout version-1.0  # Checkout the submodule version
+          git pull origin version-1.0
+          cd ../..
+          git add submodules/my-submodule
+          git commit -m "Sync submodule version to version-1.0"
+          git push
 
