@@ -65,14 +65,21 @@ jobs:
               Write-Output "ERROR: 'action' input is empty or null."
               exit 1
           }
+           # Debugging: Log raw action input
+          Write-Output "Raw action input: $action"
 
-          # Convert action to integer
+          # Try converting action to integer and log the result
+          $actionInt = 0
           try {
-              $action = [int]$action
+              $actionInt = [int]$action
+              Write-Output "Action converted to integer: $actionInt"
           } catch {
               Write-Output "ERROR: Failed to convert action to integer."
               exit 1
+
           }
+
+          
 
 
           # Navigate to the target repository
