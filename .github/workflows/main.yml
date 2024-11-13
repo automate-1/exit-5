@@ -7,11 +7,11 @@ on:
       repoPath:
         description: 'Path to the repository'
         required: true
-        default: '.'
+        default: 'https://github.com/automate-1/exit-5.git'
       submoduleUrl:
         description: 'URL of the submodule to add'
         required: false
-        default: ''
+        default: 'https://github.com/automate-1/exit-3.git'
       action:
         description: 'Action to perform (1-6)'
         required: true
@@ -19,11 +19,11 @@ on:
       submodulePath:
         description: 'Path to the submodule (required for specific actions)'
         required: false
-        default: ''
+        default: 'https://github.com/automate-1/exit-3.git'
       commitHash:
         description: 'Commit hash to update submodule to (for action 2)'
         required: false
-        default: ''
+        default: '0e6de18'
 
   push:
     branches:
