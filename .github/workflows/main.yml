@@ -92,18 +92,14 @@ jobs:
                   Write-Output "$submodulePath submodule URL has been synced."
               }
               "5" {
+                  # Remove submodule and update .gitmodules in a single commit
                   git submodule deinit $submodulePath
                   git rm -r --cached $submodulePath
                   git config -f .gitmodules --remove-section submodule.$submodulePath
                   git add .gitmodules
-                  git commit -m "Updated .gitmodules to remove submodule"
-                  git push origin main
-                  git commit -m "Removed submodule at $submodulePath"
+                  git commit -m "Removed submodule at $submodulePath and updated .gitmodules"
                   git push origin main
                   Write-Output "$submodulePath submodule has been removed."
-
-                  
-
               }
               "6" {
                   git submodule add $submoduleUrl $submodulePath
@@ -113,6 +109,5 @@ jobs:
               }
               default {
                  Write-Output "Action selected: $action"
-
               }
           }
