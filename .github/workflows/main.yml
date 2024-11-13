@@ -78,8 +78,12 @@ jobs:
                   Write-Output "$submodulePath submodule has been initialized."
               }
               "2" {
-                  git submodule update --remote $submodulePath
-                  Write-Output "$submodulePath submodule has been updated to the latest commit."
+                 - name: Update submodule
+                   run: |
+                    git submodule update --remote $submodulePath
+                    $current_commit = git submodule status $submodulePath
+                    echo "Submodule $submodulePath updated to commit: $current_commit"
+
               }
               "3" {
                   git add $submodulePath
