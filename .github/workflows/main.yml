@@ -19,7 +19,7 @@ on:
       submodulePath:
         description: 'Path to the submodule (required for specific actions)'
         required: false
-        default: 'https://github.com/automate-1/exit-3.git'
+        default: 'exit-3'
       commitHash:
         description: 'Commit hash to update submodule to (for action 2)'
         required: false
