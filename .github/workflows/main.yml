@@ -111,9 +111,7 @@ jobs:
                   # Delete the submodule directory from the working tree
                   Remove-Item -Recurse -Force $submodulePath
 
-                  # Remove submodule reference from .gitmodules if present
-                  (Get-Content .gitmodules) -replace "(?ms)^\[submodule \"$submodulePath\"\].+?(?=\n\[|$)" | Set-Content .gitmodules
-                  git add .gitmodules
+                
 
                   # Commit the removal and push changes
                   git commit -m "Removed submodule at $submodulePath"
