@@ -4,7 +4,6 @@ on:
   push:
     branches:
       - main
-
     inputs:
       repoPath:
         description: 'Path to the repository'
@@ -78,14 +77,10 @@ jobs:
                   Write-Output "$submodulePath submodule has been initialized."
               }
               "2" {
-                 - name: Update submodule
-                   shell: pwsh
-                   run: |
-                     git submodule update --remote $submodulePath
-                     $current_commit = git submodule status $submodulePath
-                     Write-Output "Submodule $submodulePath updated to commit: $current_commit"
-
-
+                  # Update submodule
+                  git submodule update --remote $submodulePath
+                  $current_commit = git submodule status $submodulePath
+                  Write-Output "Submodule $submodulePath updated to commit: $current_commit"
               }
               "3" {
                   git add $submodulePath
