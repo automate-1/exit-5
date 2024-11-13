@@ -8,7 +8,7 @@ on:
       repoPath:
         description: 'Path to the repository'
         required: true
-        default: 'https://github.com/automate-1/exit-5.git'
+        default: 'exit-5'
       submoduleUrl:
         description: 'URL of the submodule to add'
         required: false
