@@ -79,10 +79,12 @@ jobs:
               }
               "2" {
                  - name: Update submodule
+                   shell: pwsh
                    run: |
-                    git submodule update --remote $submodulePath
-                    $current_commit = git submodule status $submodulePath
-                    echo "Submodule $submodulePath updated to commit: $current_commit"
+                     git submodule update --remote $submodulePath
+                     $current_commit = git submodule status $submodulePath
+                     Write-Output "Submodule $submodulePath updated to commit: $current_commit"
+
 
               }
               "3" {
