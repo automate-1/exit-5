@@ -1,32 +1,32 @@
-name: Manage Submodules
 
+name: Manage Submodules
 on:
   workflow_dispatch:
+  push:
+    branches:
+      - main
+
     inputs:
       repoPath:
         description: 'Path to the repository'
         required: true
-        default: 'https://github.com/automate-1/exit-5.git'
+        default: '.'
       submoduleUrl:
         description: 'URL of the submodule to add'
         required: false
-        default: 'https://github.com/automate-1/exit-3.git'
+        default: ''
+      submoduleCommit:
+        description: 'Commit hash for the submodule (required to checkout specific version)'
+        required: false
+        default: ''
       action:
-        description: 'Action to perform (1-6)'
+        description: 'Choose an action from 1 to 6'
         required: true
-        default: '2'  
+        default: '1'
       submodulePath:
-        description: 'Path to the submodule (required for specific actions)'
+        description: 'Path of the submodule for action (required for specific actions)'
         required: false
-        default: 'exit-3'  # The submodule path
-      commitHash:
-        description: 'Commit hash to update submodule to (for action 2)'
-        required: false
-        default: '0e6de18'  # Specific commit for action 2, if needed
-
-  push:
-    branches:
-      - main
+        default: ''
 
 jobs:
   manage-submodules:
@@ -36,14 +36,7 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v3
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}
           submodules: true  # Fetch submodules if they exist
-          persist-credentials: true  # Ensure credentials are retained for pushing changes
-
-      - name: Configure Git
-        run: |
-          git config --global user.name "github-actions[bot]"
-          git config --global user.email "github-actions[bot]@users.noreply.github.com"
 
       - name: Manage submodules
         shell: pwsh
@@ -51,108 +44,62 @@ jobs:
           # Set variables from workflow inputs
           $repoPath = "${{ github.event.inputs.repoPath }}"
           $submoduleUrl = "${{ github.event.inputs.submoduleUrl }}"
-          $action = "${{ github.event.inputs.action }}"  # Keep as string first for debugging
+          $action = "${{ github.event.inputs.action }}"
           $submodulePath = "${{ github.event.inputs.submodulePath }}"
-          $commitHash = "${{ github.event.inputs.commitHash }}"
-
-          Write-Output "Action selected: $action"
-
-          # Convert action to integer
-          $action = [int]$action
-          Write-Output "Action converted to integer: $action"
-
-           if ([string]::IsNullOrWhiteSpace($action)) {
-              Write-Output "ERROR: 'action' input is empty or null."
-              exit 1
-          }
-           # Debugging: Log raw action input
-          Write-Output "Raw action input: $action"
-
-          # Try converting action to integer and log the result
-          $actionInt = 0
-          try {
-              $actionInt = [int]$action
-              Write-Output "Action converted to integer: $actionInt"
-          } catch {
-              Write-Output "ERROR: Failed to convert action to integer."
-              exit 1
-
-          }
-
-          
-
+          $submoduleCommit = "${{ github.event.inputs.submoduleCommit }}"
 
           # Navigate to the target repository
           Set-Location -Path $repoPath
           Write-Output "Changed directory to $repoPath"
 
-          # Add submodule if URL is provided and action is to add (action 6)
-          if ($submoduleUrl -ne "" -and $action -eq 6) {
-              git submodule add $submoduleUrl $submodulePath
+          # Add submodule if URL is provided
+          if ($submoduleUrl -ne "") {
+              git submodule add $submoduleUrl
               git submodule update --init --recursive
-              git add .gitmodules $submodulePath
+              git add . 
               git commit -m "Added submodule: $submoduleUrl"
               git push origin main
               Write-Output "Added submodule at $submoduleUrl"
           }
 
+          # Checkout submodule at specific commit if provided
+          if ($submoduleCommit -ne "") {
+              # Navigate into the submodule directory
+              Set-Location -Path $submodulePath
+              git checkout $submoduleCommit
+              git submodule update --recursive
+              Write-Output "Checked out submodule at commit: $submoduleCommit"
+              Set-Location -Path $repoPath
+          }
+
           # Perform action based on input
           switch ($action) {
-              1 {
+              "1" {
                   git submodule update --init --recursive $submodulePath
                   Write-Output "$submodulePath submodule has been initialized."
               }
-              2 {
-                  if ($commitHash -ne "") {
-                      Set-Location -Path $submodulePath
-                      git fetch
-                      git checkout $commitHash
-                      Set-Location -Path $repoPath
-                      Write-Output "$submodulePath submodule updated to specific commit $commitHash."
-                  }
-                  else {
-                      git submodule update --remote $submodulePath
-                      Write-Output "$submodulePath submodule updated to the latest commit."
-                  }
+              "2" {
+                  git submodule update --remote $submodulePath
+                  Write-Output "$submodulePath submodule has been updated to the latest commit."
               }
-              3 {
+              "3" {
                   git add $submodulePath
                   git commit -m "Updated specific submodule: $submodulePath"
                   git push origin main
                   Write-Output "Updates for $submodulePath submodule have been committed and pushed."
               }
-              4 {
+              "4" {
                   git submodule sync --recursive $submodulePath
                   Write-Output "$submodulePath submodule URL has been synced."
               }
-              5 {
-                  # Deinitialize and remove submodule
-                  git submodule deinit -f -- $submodulePath
-                  Write-Output "Deinitialized $submodulePath submodule."
-
-                  # Force remove the submodule from the index
-                  git rm -f --cached $submodulePath
-                  Write-Output "Removed $submodulePath from the index."
-
-                  # Delete the submodule directory from the working tree
-                  Remove-Item -Recurse -Force $submodulePath
-
-                  # Ensure .gitmodules is updated by removing the submodule entry
-                  $gitmodulesPath = ".gitmodules"
-                  $gitmodulesContent = Get-Content $gitmodulesPath
-                  $updatedContent = $gitmodulesContent | Where-Object { $_ -notmatch "^\[submodule `"$submodulePath`"\]" }
-                  $updatedContent | Set-Content $gitmodulesPath
-
-                  # Stage .gitmodules for commit
-                  git add .gitmodules
-                  Write-Output "Updated .gitmodules to remove the submodule entry."
-
-                  # Commit the removal and push changes
+              "5" {
+                  git submodule deinit $submodulePath
+                  git rm -r --cached $submodulePath
                   git commit -m "Removed submodule at $submodulePath"
                   git push origin main
-                  Write-Output "$submodulePath submodule has been fully removed."
+                  Write-Output "$submodulePath submodule has been removed."
               }
-              6 {
+              "6" {
                   git submodule add $submoduleUrl $submodulePath
                   git commit -m "Re-added submodule at $submodulePath"
                   git push origin main
@@ -162,5 +109,3 @@ jobs:
                   Write-Output "Invalid action. Please select a valid number between 1 and 6."
               }
           }
-
-          
