@@ -1,26 +1,28 @@
-name: Trigger Manage Submodules Workflow
-
+name: Manage Submodules in Target Repo
 on:
-  workflow_dispatch:  # Allows manual trigger from GitHub UI
+  repository_dispatch:
+    types: [submodule_action]  # Match this with the type in the source repo
 
 jobs:
-  trigger:
-    runs-on: ubuntu-latest
+  manage-submodules:
+    runs-on: windows-latest
+    
     steps:
-      - name: Trigger the "Manage Submodules" workflow in the original repository
-        env:
-          REPO_TOKEN: ${{ secrets.GITT_TOKEN }}
+      - name: Checkout repository
+        uses: actions/checkout@v3
+        with:
+          submodules: true  # Fetch submodules if they exist
+
+      - name: Handle Submodule Actions
+        shell: pwsh
         run: |
-          curl -X POST -H "Accept: application/vnd.github.everest-preview+json" \
-          -H "Authorization: token $REPO_TOKEN" \
-          https://api.github.com/repos/cazelabs/ci-cd-github/dispatches \
-          -d '{
-                "event_type": "submodule_action",
-                "client_payload": {
-                  "repoPath": "https://github.com/automate-1/exit-5.git",
-                  "submoduleUrl": "https://github.com/automate-1/exit-3.git",
-                  "submoduleCommit": "0e6de18",
-                  "action": "2",
-                  "submodulePath": "exit-3"
-                }
-              }'
+          # Get inputs from the source repository trigger
+          $repoPath = "${{ github.event.client_payload.repoPath }}"
+          $submoduleUrl = "${{ github.event.client_payload.submoduleUrl }}"
+          $action = "${{ github.event.client_payload.action }}"
+          $submodulePath = "${{ github.event.client_payload.submodulePath }}"
+          $submoduleCommit = "${{ github.event.client_payload.submoduleCommit }}"
+
+          # Similar logic as in the source workflow
+          Write-Output "Performing action on submodule $submodulePath"
+
