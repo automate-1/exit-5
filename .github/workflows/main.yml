@@ -23,6 +23,10 @@ on:
         description: 'Path of the submodule for action (required for specific actions)'
         required: false
         default: ''
+      commitHash:
+        description: 'Specific commit hash for the submodule (for update to a specific commit)'
+        required: false
+        default: ''
 
 jobs:
   manage-submodules:
@@ -34,8 +38,6 @@ jobs:
         with:
           submodules: true  # Fetch submodules if they exist
 
-     
-
       - name: Manage submodules
         shell: pwsh
         run: |
@@ -44,6 +46,7 @@ jobs:
           $submoduleUrl = "${{ github.event.inputs.submoduleUrl }}"
           $action = "${{ github.event.inputs.action }}"
           $submodulePath = "${{ github.event.inputs.submodulePath }}"
+          $commitHash = "${{ github.event.inputs.commitHash }}"
 
           # Navigate to the target repository
           Set-Location -Path $repoPath
@@ -66,8 +69,17 @@ jobs:
                   Write-Output "$submodulePath submodule has been initialized."
               }
               "2" {
-                  git submodule update --remote $submodulePath
-                  Write-Output "$submodulePath submodule has been updated to the latest commit."
+                  if ($commitHash -ne "") {
+                      cd $submodulePath
+                      git fetch
+                      git checkout $commitHash
+                      cd ..
+                      Write-Output "$submodulePath submodule updated to specific commit $commitHash."
+                  }
+                  else {
+                      git submodule update --remote $submodulePath
+                      Write-Output "$submodulePath submodule updated to the latest commit."
+                  }
               }
               "3" {
                   git add $submodulePath
