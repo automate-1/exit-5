@@ -47,6 +47,14 @@ jobs:
           $submodulePath = "${{ github.event.inputs.submodulePath }}"
           $submoduleCommit = "${{ github.event.inputs.submoduleCommit }}"
 
+
+          # Debugging the variables
+          Write-Output "Repo Path: $repoPath"
+          Write-Output "Submodule URL: $submoduleUrl"
+          Write-Output "Action: $action"
+          Write-Output "Submodule Path: $submodulePath"
+          Write-Output "Submodule Commit: $submoduleCommit"
+
           
 
           # Navigate to the target repository
