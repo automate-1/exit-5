@@ -16,15 +16,15 @@ on:
         required: false
         default: ''
       action:
-        description: '2'
+        description: '5'
         required: true
-        default: '1'
+        default: '5'
       submodulePath:
-        description: ' https://github.com/automate-1/exit-2.git(required for specific actions)'
+        description: ' https://github.com/automate-1/exit-3.git(required for specific actions)'
         required: false
         default: ''
       commitHash:
-        description: '4aa8f7e (for update to a specific commit)'
+        description: '0e6de18 (for update to a specific commit)'
         required: false
         default: ''
 
