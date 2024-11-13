@@ -47,6 +47,19 @@ jobs:
           $submodulePath = "${{ github.event.inputs.submodulePath }}"
           $submoduleCommit = "${{ github.event.inputs.submoduleCommit }}"
 
+          # Output debugging information
+          Write-Output "Repo Path: $repoPath"
+          Write-Output "Submodule URL: $submoduleUrl"
+          Write-Output "Action: $action"
+          Write-Output "Submodule Path: $submodulePath"
+          Write-Output "Submodule Commit: $submoduleCommit"
+
+          # Clone the repository if needed
+          if (-not (Test-Path -Path $repoPath)) {
+           git clone $repoPath
+           Set-Location -Path $repoPath
+          }
+
           # Navigate to the target repository
           Set-Location -Path $repoPath
           Write-Output "Changed directory to $repoPath"
