@@ -113,7 +113,7 @@ jobs:
                   # Ensure .gitmodules is updated by removing the submodule entry
                   $gitmodulesPath = ".gitmodules"
                   $gitmodulesContent = Get-Content $gitmodulesPath
-                  $updatedContent = $gitmodulesContent | Where-Object { $_ -notmatch "^\[submodule \"$submodulePath\"\]" }
+                  $updatedContent = $gitmodulesContent | Where-Object { $_ -notmatch "^\[submodule `"$submodulePath`"\]" }
                   $updatedContent | Set-Content $gitmodulesPath
 
                   # Stage .gitmodules for commit
