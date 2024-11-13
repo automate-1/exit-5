@@ -29,7 +29,7 @@ jobs:
 
     - name: Commit submodule update (if any)
       run: |
-        git add path/to/submodule
+        git add https://github.com/automate-1/exit-2.git
         git commit -m "Updated submodule to latest version"
         git push origin main
       # Only commit if there were changes to the submodule
