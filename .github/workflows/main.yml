@@ -104,6 +104,7 @@ jobs:
                   Write-Output "Submodule added at $submodulePath."
               }
               default {
-                  Write-Output "Invalid action. Please select a valid number between 1 and 6."
+                 Write-Output "Action selected: $action"
+
               }
           }
