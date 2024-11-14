@@ -157,7 +157,7 @@ jobs:
               default {
                  Write-Output "Action selected: $action"
               }
-          }
+           }
           }
           catch {
             Write-Error "An error occurred: $_"
