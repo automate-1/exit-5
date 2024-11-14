@@ -12,7 +12,7 @@ on:
         default: 'exit-5'
       submoduleUrl:
         description: 'URL of the submodule to add'
-        required: false
+        required: true
         default: 'https://github.com/automate-1/exit-3.git'
       submoduleCommit:
         description: 'Commit hash for the submodule (required to checkout specific version)'
@@ -24,7 +24,7 @@ on:
         default: '2'
       submodulePath:
         description: 'Path of the submodule for action (required for specific actions)'
-        required: false
+        required: true
         default: 'exit-3'
 
 jobs:
@@ -57,7 +57,7 @@ jobs:
       - name: Manage submodules
         shell: pwsh
         run: |
-          try {
+          try{
             # Set variables from workflow inputs
             $repoPath = "${{ github.event.inputs.repoPath }}"
             $submoduleUrl = "${{ github.event.inputs.submoduleUrl }}"
