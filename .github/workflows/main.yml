@@ -21,7 +21,7 @@ on:
       action:
         description: 'Choose an action from 1 to 6'
         required: true
-        default: '2'
+        default: '5'
       submodulePath:
         description: 'Path of the submodule for action (required for specific actions)'
         required: false
