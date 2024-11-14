@@ -91,4 +91,4 @@ jobs:
           git add .gitmodules
           git add ${{ inputs.submodulePath }}
           git commit -m "Updated submodule for ${{ inputs.submodulePath }} with action ${{ inputs.action }}"
-          git push
+          git push origin HEAD:main
