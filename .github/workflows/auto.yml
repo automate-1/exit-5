@@ -44,6 +44,12 @@ jobs:
         with:
           repository: ${{ inputs.repoPath }}
 
+
+      - name: Set Git User Identity
+        run: |
+          git config --global user.name "GitHub Actions"
+          git config --global user.email "actions@github.com"
+
       # Add Submodule (if action is '1')
       - name: Add Submodule
         if: ${{ inputs.action == '1' }}
