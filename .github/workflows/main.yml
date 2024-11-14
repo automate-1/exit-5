@@ -94,7 +94,7 @@ jobs:
               "2" {
                   # Update submodule
                   git submodule update --remote $submodulePath
-                  $current_commit = (git submodule status $submodulePath | ForEach-Object { $_.Split(' ')[0] })
+                  $current_commit = (git -C $submodulePath rev-parse HEAD)
                   Write-Output "Submodule $submodulePath updated to commit: $current_commit"
                   Write-Output "Current commit: $current_commit"
               }
