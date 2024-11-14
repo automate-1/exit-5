@@ -121,6 +121,7 @@ jobs:
           git status
           git add .gitmodules || true
           git add ${{ inputs.submodulePath }} || true
+          git add . # Fallback to add all changes
           if [[ -n $(git status -s) ]]; then
             git commit -m "Updated submodule for ${{ inputs.submodulePath }} with action ${{ inputs.action }}"
             git push origin HEAD:main
