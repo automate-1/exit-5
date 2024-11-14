@@ -1,4 +1,3 @@
-
 name: Manage Submodules
 on:
   workflow_dispatch:
@@ -10,19 +9,23 @@ on:
       repoPath:
         description: 'Path to the repository'
         required: true
-        default: '.'
+        default: 'https://github.com/automate-1/exit-5.git'
       submoduleUrl:
         description: 'URL of the submodule to add'
         required: false
-        default: ''
+        default: 'https://github.com/automate-1/exit-3.git'
+      submoduleCommit:
+        description: 'Commit hash for the submodule (required to checkout specific version)'
+        required: false
+        default: '0e6de18'
       action:
         description: 'Choose an action from 1 to 6'
         required: true
-        default: '1'
+        default: '5'
       submodulePath:
         description: 'Path of the submodule for action (required for specific actions)'
         required: false
-        default: ''
+        default: 'exit-3'
 
 jobs:
   manage-submodules:
@@ -32,9 +35,8 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v3
         with:
+          token: ${{ secrets.GITHUB_TOKEN }}
           submodules: true  # Fetch submodules if they exist
-
-     
 
       - name: Manage submodules
         shell: pwsh
@@ -44,6 +46,7 @@ jobs:
           $submoduleUrl = "${{ github.event.inputs.submoduleUrl }}"
           $action = "${{ github.event.inputs.action }}"
           $submodulePath = "${{ github.event.inputs.submodulePath }}"
+          $submoduleCommit = "${{ github.event.inputs.submoduleCommit }}"
 
           # Navigate to the target repository
           Set-Location -Path $repoPath
@@ -53,10 +56,19 @@ jobs:
           if ($submoduleUrl -ne "") {
               git submodule add $submoduleUrl
               git submodule update --init --recursive
-              git add .
+              git add . 
               git commit -m "Added submodule: $submoduleUrl"
               git push origin main
               Write-Output "Added submodule at $submoduleUrl"
+          }
+
+          if ($submoduleCommit -ne "") {
+              Set-Location -Path $submodulePath
+              git checkout $submoduleCommit
+              git submodule update --recursive
+              Write-Output "Checked out submodule at commit: $submoduleCommit"
+
+              Set-Location -Path $repoPath
           }
 
           # Perform action based on input
@@ -80,9 +92,12 @@ jobs:
                   Write-Output "$submodulePath submodule URL has been synced."
               }
               "5" {
-                  git submodule deinit $submodulePath
+                  # Remove submodule and update .gitmodules in a single commit
+                  git submodule deinit -f -- $submodulePath
                   git rm -r --cached $submodulePath
-                  git commit -m "Removed submodule at $submodulePath"
+                  git config -f .gitmodules --remove-section submodule.$submodulePath
+                  git add .gitmodules
+                  git commit -m "Removed submodule at $submodulePath and updated .gitmodules"
                   git push origin main
                   Write-Output "$submodulePath submodule has been removed."
               }
@@ -93,6 +108,6 @@ jobs:
                   Write-Output "Submodule added at $submodulePath."
               }
               default {
-                  Write-Output "Invalid action. Please select a valid number between 1 and 6."
+                 Write-Output "Action selected: $action"
               }
           }
