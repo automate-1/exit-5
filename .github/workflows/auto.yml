@@ -57,8 +57,7 @@ jobs:
         run: |
           git submodule add ${{ inputs.submoduleUrl }} ${{ inputs.submodulePath }}
           git submodule update --init --recursive ${{ inputs.submodulePath }}
-          git status
-          git diff
+          ls -la ${{ inputs.submodulePath }}
 
       # Remove Submodule (if action is '2')
       - name: Remove Submodule
@@ -68,16 +67,15 @@ jobs:
           git rm -f ${{ inputs.submodulePath }}
           rm -rf .git/modules/${{ inputs.submodulePath }}
           git commit -m "Remove submodule at ${{ inputs.submodulePath }}"
-          git status
-          git diff
+          ls -la ${{ inputs.submodulePath }} || echo "Submodule path removed"
 
       # Initialize Submodule (if action is '3')
       - name: Initialize Submodule
         if: ${{ inputs.action == '3' }}
         run: |
           git submodule update --init --recursive ${{ inputs.submodulePath }}
-          git status
-          git diff
+          ls -la ${{ inputs.submodulePath }}
+
 
       # Update Submodule (if action is '4')
       - name: Update Submodule
@@ -85,27 +83,29 @@ jobs:
         run: |
           git submodule update --recursive --remote ${{ inputs.submodulePath }}
           if [ ! -z "${{ inputs.submoduleCommit }}" ]; then
+            cd ${{ inputs.submodulePath }}
             git checkout ${{ inputs.submoduleCommit }} ${{ inputs.submodulePath }}
+            cd -
           fi
-          git status
-          git diff
+          ls -la ${{ inputs.submodulePath }}
 
       # Sync Submodule (if action is '5')
       - name: Sync Submodule
         if: ${{ inputs.action == '5' }}
         run: |
           git submodule sync ${{ inputs.submodulePath }}
-          git status
-          git diff
+          ls -la ${{ inputs.submodulePath }}
 
       # Checkout specific commit for Submodule (if action is '6')
       - name: Checkout Commit for Submodule
         if: ${{ inputs.action == '6' }}
         run: |
           git submodule update --init --recursive ${{ inputs.submodulePath }}
-          git checkout ${{ inputs.submoduleCommit }} ${{ inputs.submodulePath }}
-          git status
-          git diff
+          cd ${{ inputs.submodulePath }}
+          git checkout ${{ inputs.submoduleCommit }}
+          cd -
+          ls -la ${{ inputs.submodulePath }}
+
 
       # Commit and push the changes
       - name: Commit Changes
@@ -114,8 +114,9 @@ jobs:
           if [[ -n $(git status -s) ]]; then
             git add .gitmodules
             git add ${{ inputs.submodulePath }}
-            git commit -m "Updated submodule for ${{ inputs.submodulePath }} with action ${{ inputs.action }}"
-            git push origin HEAD:main
+            if [[ -n $(git status -s) ]]; then
+             git commit -m "Updated submodule for ${{ inputs.submodulePath }} with action ${{ inputs.action }}"
+             git push origin HEAD:main
           else
             echo "No changes to commit"
           fi
