@@ -1,10 +1,10 @@
 name: Manage Submodules
+
 on:
   workflow_dispatch:
   push:
     branches:
       - main
-
     inputs:
       repoPath:
         description: 'Path to the repository'
@@ -48,20 +48,34 @@ jobs:
           $submodulePath = "${{ github.event.inputs.submodulePath }}"
           $submoduleCommit = "${{ github.event.inputs.submoduleCommit }}"
 
-          # Navigate to the target repository
+          # Debugging the variables
+          Write-Output "Repo Path: $repoPath"
+          Write-Output "Submodule URL: $submoduleUrl"
+          Write-Output "Action: $action"
+          Write-Output "Submodule Path: $submodulePath"
+          Write-Output "Submodule Commit: $submoduleCommit"
+
+          # Navigate to the target repository (Ensure the repoPath is correct)
           Set-Location -Path $repoPath
           Write-Output "Changed directory to $repoPath"
 
           # Add submodule if URL is provided
           if ($submoduleUrl -ne "") {
-              git submodule add $submoduleUrl
-              git submodule update --init --recursive
-              git add . 
-              git commit -m "Added submodule: $submoduleUrl"
-              git push origin main
-              Write-Output "Added submodule at $submoduleUrl"
+              # Check if submodule already exists to avoid errors
+              $submoduleExists = git submodule status $submodulePath
+              if ($submoduleExists) {
+                  Write-Output "Submodule at $submodulePath already exists."
+              } else {
+                  git submodule add $submoduleUrl $submodulePath
+                  git submodule update --init --recursive
+                  git add .
+                  git commit -m "Added submodule: $submoduleUrl"
+                  git push origin main
+                  Write-Output "Added submodule at $submoduleUrl"
+              }
           }
 
+          # Checkout a specific commit of the submodule if provided
           if ($submoduleCommit -ne "") {
               Set-Location -Path $submodulePath
               git checkout $submoduleCommit
@@ -78,8 +92,11 @@ jobs:
                   Write-Output "$submodulePath submodule has been initialized."
               }
               "2" {
+                  # Update submodule
                   git submodule update --remote $submodulePath
-                  Write-Output "$submodulePath submodule has been updated to the latest commit."
+                  $current_commit = (git -C "$repoPath/$submodulePath" rev-parse HEAD)
+                  Write-Output "Submodule $submodulePath updated to commit: $current_commit"
+                  Write-Output "Current commit: $current_commit"
               }
               "3" {
                   git add $submodulePath
@@ -111,3 +128,6 @@ jobs:
                  Write-Output "Action selected: $action"
               }
           }
+
+    
+            
