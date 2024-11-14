@@ -9,7 +9,7 @@ on:
       repoPath:
         description: 'Path to the repository'
         required: true
-        default: 'https://github.com/automate-1/exit-5.git'
+        default: 'exit-5'
       submoduleUrl:
         description: 'URL of the submodule to add'
         required: false
@@ -21,7 +21,7 @@ on:
       action:
         description: 'Choose an action from 1 to 6'
         required: true
-        default: '5'
+        default: '2'
       submodulePath:
         description: 'Path of the submodule for action (required for specific actions)'
         required: false
@@ -37,6 +37,24 @@ jobs:
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           submodules: true  # Fetch submodules if they exist
+
+
+      - name: Validate inputs
+        run: |
+          # Validate that the repoPath is correct
+          if (-Not (Test-Path "${{ github.workspace }}\$repoPath")) {
+            Write-Error "The repository path $repoPath does not exist in the workspace."
+            exit 1
+          }
+
+          # Validate that submodule URL is provided when required
+          if ($submoduleUrl -eq "" -and $action -in @("1", "2", "5", "6")) {
+            Write-Error "Submodule URL is required for the action: $action"
+            exit 1
+          }
+
+          Write-Output "Input validation passed."
+
 
       - name: Manage submodules
         shell: pwsh
@@ -82,21 +100,33 @@ jobs:
               git submodule update --recursive
               Write-Output "Checked out submodule at commit: $submoduleCommit"
 
-              Set-Location -Path $repoPath
+              Set-Location -Path $(Build.SourcesDirectory)
+
           }
 
           # Perform action based on input
           switch ($action) {
               "1" {
                   git submodule update --init --recursive $submodulePath
+                  git add .gitmodules
+                  git add $submodulePath
+                  git commit -m "Initialized submodule at $submodulePath"
+                  git push origin main  # Push to remot
                   Write-Output "$submodulePath submodule has been initialized."
               }
               "2" {
                   # Update submodule
-                  git submodule update --remote $submodulePath
+                  Write-Output "Fetching latest updates for submodule at $submodulePath"
+                  git submodule update --remote --merge $submodulePath
                   $current_commit = (git -C "$repoPath/$submodulePath" rev-parse HEAD)
                   Write-Output "Submodule $submodulePath updated to commit: $current_commit"
                   Write-Output "Current commit: $current_commit"
+
+                   git add $submodulePath
+                   git commit -m "Updated submodule $submodulePath to the latest commit"
+                   git push origin main  # Push to remote
+
+                   Write-Output "$submodulePath submodule updated and changes pushed."
               }
               "3" {
                   git add $submodulePath
@@ -127,6 +157,11 @@ jobs:
               default {
                  Write-Output "Action selected: $action"
               }
+          }
+          }
+          catch {
+            Write-Error "An error occurred: $_"
+            exit 1
           }
 
     
