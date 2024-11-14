@@ -9,7 +9,7 @@ on:
       repoPath:
         description: 'Path to the repository'
         required: true
-        default: 'exit-5'
+        default: 'https://github.com/automate-1/exit-5.git'
       submoduleUrl:
         description: 'URL of the submodule to add'
         required: false
