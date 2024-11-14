@@ -15,7 +15,7 @@ on:
       submoduleUrl:
         description: 'URL of the submodule to add'
         required: true
-        default: 'https://github.com/automate-1/exit-3.git'
+        default: 'https://github.com/automate-1/exit-2.git'
        
       submoduleCommit:
         description: 'Commit hash for the submodule (required to checkout specific version)'
