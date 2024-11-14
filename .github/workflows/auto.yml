@@ -11,27 +11,27 @@ on:
         description: 'Path to the repository'
         required: true
         default: 'exit-5'
-        type: string
+
       submoduleUrl:
         description: 'URL of the submodule to add'
         required: true
         default: 'https://github.com/automate-1/exit-3.git'
-        type: string
+       
       submoduleCommit:
         description: 'Commit hash for the submodule (required to checkout specific version)'
         required: false
-        default: '0e6de18'
-        type: string
+        default: '4aa8f7e'
+       
       action:
         description: 'Choose an action from 1 to 6 (1=add, 2=remove, 3=init, 4=update, 5=sync, 6=checkout commit)'
         required: true
         default: '2'
-        type: string
+       
       submodulePath:
         description: 'Path of the submodule for action (required for specific actions)'
         required: true
-        default: 'exit-3'
-        type: string
+        default: 'exit-2'
+        
 
 jobs:
   submodule-management:
@@ -97,6 +97,19 @@ jobs:
             cd -
           fi
           ls -la ${{ inputs.submodulePath }}
+
+          # Force Update Submodule (if action is '4')
+      - name: Force Update Submodule
+        if: ${{ inputs.action == '4' }}
+        run: |
+          git submodule update --force --recursive ${{ inputs.submodulePath }}
+          if [ ! -z "${{ inputs.submoduleCommit }}" ]; then
+             cd ${{ inputs.submodulePath }}
+             git checkout ${{ inputs.submoduleCommit }}
+             cd -
+          fi
+          ls -la ${{ inputs.submodulePath }}
+
 
       # Sync Submodule (if action is '5')
       - name: Sync Submodule
